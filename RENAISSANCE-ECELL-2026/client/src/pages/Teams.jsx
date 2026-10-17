@@ -8,39 +8,39 @@ import ContactFooter from "../components/ContactFooter";
 const MAIN_SECTION_HEADING_CLASS =
   "group mx-auto mb-5 flex w-fit cursor-default flex-col items-center font-cinzel text-[1.65rem] font-bold leading-tight tracking-[0.04em] text-[#166E94] sm:mb-9 sm:text-5xl sm:tracking-[0.06em]";
 
-const FacultyCard = ({ member, grouped = false }) => {
+const FacultyCard = ({ member, grouped = false, isPriority = false }) => {
   const NameHeading = grouped ? "h4" : "h3";
   return (
-  <article className="teams-member-card teams-faculty-card group flex w-full max-w-[280px] shrink-0 flex-col rounded-xl border border-[#D8C4A8] bg-[#FDF3DF] p-3 text-center shadow-[0_10px_24px_rgba(84,64,43,0.2)] transition-all duration-300 sm:w-[232px] sm:rounded-2xl sm:p-4">
-    <div className="aspect-square w-full overflow-hidden rounded-xl border border-[#D8C4A8] bg-[#EAD7BC]">
-      <img
-        src={teamPhotoUrl(member)}
-        alt={member.name}
-        className="h-full w-full object-cover"
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : "auto"}
-        decoding="async"
-        onError={(e) => {
-          const fallback = getAssetUrl("/placeholder-speaker.svg");
-          if (e.currentTarget.getAttribute("src") !== fallback) e.currentTarget.src = fallback;
-        }}
-      />
-    </div>
-    <NameHeading className="teams-member-name mt-3 font-cinzel text-base font-bold leading-snug text-[#40352B] sm:mt-5 sm:text-2xl">
-      {member.name}
-    </NameHeading>
-    {member.position && <p className="mt-2 text-sm text-[#7A6A58]">{member.position}</p>}
-    {!grouped && member.team && <p className="mt-1 text-xs text-[#7A6A58]">{member.team}</p>}
-    {member.linkedin && <a
-      href={member.linkedin}
-      target="_blank"
-      rel="noreferrer"
-      className="mt-2.5 inline-flex items-center justify-center gap-1.5 self-center font-montserrat text-[10px] font-bold uppercase tracking-[0.1em] text-[#7A6A58] transition-colors hover:text-[#40352B] sm:mt-4 sm:gap-2 sm:text-xs sm:tracking-[0.13em]"
-    >
-      <FaLinkedin className="text-lg" aria-hidden="true" />
-      <span>LinkedIn</span>
-    </a>}
-  </article>
+    <article className="teams-member-card teams-faculty-card group flex w-full max-w-[280px] shrink-0 flex-col rounded-xl border border-[#D8C4A8] bg-[#FDF3DF] p-3 text-center shadow-[0_10px_24px_rgba(84,64,43,0.2)] transition-all duration-300 sm:w-[232px] sm:rounded-2xl sm:p-4">
+      <div className="aspect-square w-full overflow-hidden rounded-xl border border-[#D8C4A8] bg-[#EAD7BC]">
+        <img
+          src={teamPhotoUrl(member)}
+          alt={member.name}
+          className="h-full w-full object-cover"
+          loading={isPriority ? "eager" : "lazy"}
+          fetchPriority={isPriority ? "high" : "auto"}
+          decoding="async"
+          onError={(e) => {
+            const fallback = getAssetUrl("/placeholder-speaker.svg");
+            if (e.currentTarget.getAttribute("src") !== fallback) e.currentTarget.src = fallback;
+          }}
+        />
+      </div>
+      <NameHeading className="teams-member-name mt-3 font-cinzel text-base font-bold leading-snug text-[#40352B] sm:mt-5 sm:text-2xl">
+        {member.name}
+      </NameHeading>
+      {member.position && <p className="mt-2 text-sm text-[#7A6A58]">{member.position}</p>}
+      {!grouped && member.team && <p className="mt-1 text-xs text-[#7A6A58]">{member.team}</p>}
+      {member.linkedin && <a
+        href={member.linkedin}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-2.5 inline-flex items-center justify-center gap-1.5 self-center font-montserrat text-[10px] font-bold uppercase tracking-[0.1em] text-[#7A6A58] transition-colors hover:text-[#40352B] sm:mt-4 sm:gap-2 sm:text-xs sm:tracking-[0.13em]"
+      >
+        <FaLinkedin className="text-lg" aria-hidden="true" />
+        <span>LinkedIn</span>
+      </a>}
+    </article>
   );
 };
 
@@ -248,7 +248,7 @@ export default function Teams({ embedded = false }) {
                 <StudentTeamGroups members={group} category={category} />
               ) : (
                 <div className="teams-faculty-cards flex flex-wrap items-stretch justify-center gap-4 px-1 pb-2 sm:gap-12">
-                  {group.map((member) => <FacultyCard key={member.id} member={member} />)}
+                  {group.map((member, index) => <FacultyCard key={member.id} member={member} isPriority={category === "faculty" && index < 4} />)}
                 </div>
               )}
             </section>;
