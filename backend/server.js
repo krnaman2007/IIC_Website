@@ -18,9 +18,30 @@ connectDB();
 
 const app = express();
 
+const isAllowedBackendOrigin = (origin) => {
+    if (!origin) return true;
+    const clean = origin.replace(/\/+$/, "");
+    const allowed = [
+        "https://iic-website-eight.vercel.app",
+        "https://iic-website-azure.vercel.app",
+        "https://iic.mnnit.ac.in",
+        "http://210.212.49.57",
+    ];
+    if (allowed.includes(clean)) return true;
+    if (/^https:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/i.test(clean)) return true;
+    if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i.test(clean)) return true;
+    return false;
+};
+
 // Middleware
 app.use(cors({
-    origin: ["https://iic-website-azure.vercel.app", "https://iic.mnnit.ac.in", "http://210.212.49.57", "http://localhost:5173"], //frontend URL
+    origin: function(origin, callback) {
+        if (isAllowedBackendOrigin(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true
 }));
 app.use(express.json());
