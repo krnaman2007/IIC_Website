@@ -16,6 +16,7 @@ import { adminTeamPhotoRouter, publicTeamPhotoRouter, localTeamPhotoRouter } fro
 import { ambassadorDashboardRouter } from "./routes/ambassador-dashboard.routes.js";
 import { healthRouter } from "./routes/health.routes.js";
 import { ApiError } from "./utils/api-error.js";
+import { isAllowedOrigin } from "./utils/allowed-origins.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
@@ -39,8 +40,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
     origin(origin, callback) {
-      const cleanOrigin = origin ? origin.replace(/\/+$/, "") : "";
-      if (!origin || env.CLIENT_ORIGINS.includes(cleanOrigin) || env.CLIENT_ORIGINS.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         callback(null, true);
         return;
       }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
-import { adminApi } from "../lib/server1-api";
+import { adminApi, getStoredAdminToken, setStoredAdminToken } from "../lib/server1-api";
 import { localAdminMode, LOCAL_ADMIN } from "../lib/local-admin";
 import "./admin-dashboard.css";
 
@@ -16,6 +16,7 @@ export default function AdminSession() {
   const adminEntry = /^\/admin\/?$/.test(pathname);
   const handleError = useCallback((err) => {
     if (err.status === 401 || err.status === 403) {
+      setStoredAdminToken(null);
       setAdmin(null);
       navigate("/admin/login", { replace: true });
       return true;
@@ -37,23 +38,42 @@ export default function AdminSession() {
 
   useEffect(() => {
     let active = true;
+    const token = getStoredAdminToken();
+
+    // If there is no stored token, don't make an unauthenticated network request that triggers 401/403 console errors.
+    if (!token) {
+      if (localAdminMode) {
+        setAdmin((curr) => (curr && curr.id !== "local-admin" ? curr : LOCAL_ADMIN));
+      } else {
+        setAdmin(null);
+      }
+      setLoading(false);
+      return;
+    }
+
     adminApi.me().then((data) => {
       if (active) setAdmin(data.admin);
     })
       .catch((err) => {
         if (!active) return;
+        if (err.status === 401 || err.status === 403) {
+          setStoredAdminToken(null);
+          setAdmin(null);
+          if (!loginPage) {
+            navigate("/admin/login", { replace: true });
+          }
+          return;
+        }
         if (localAdminMode) {
           // If on localhost and not authenticated, fallback to local admin for photo management
           setAdmin((curr) => (curr && curr.id !== "local-admin" ? curr : LOCAL_ADMIN));
           return;
         }
-        if (err.status !== 401 && err.status !== 403) {
-          setError("We couldn't reach the admin service. Please try again.");
-        }
+        setError("We couldn't reach the admin service. Please try again.");
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [attempt]);
+  }, [attempt, loginPage, navigate]);
 
   useEffect(() => {
     if (!admin || admin.id === "local-admin") return;
@@ -65,6 +85,7 @@ export default function AdminSession() {
 
   async function logout() {
     try { await adminApi.logout(); } catch { /* Ignore network errors on logout */ }
+    setStoredAdminToken(null);
     setAdmin(null);
     navigate("/admin/login", { replace: true });
   }

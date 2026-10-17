@@ -124,6 +124,10 @@ async function refreshAuth(authScope) {
     : "/ambassador/auth/refresh";
 
   const refreshPromise = (async () => {
+    if (authScope === "admin" && !getStoredAdminToken()) {
+      return { ok: false, status: 401, error: null };
+    }
+
     const response = await (authScope === "ambassador"
       ? mutateAmbassadorAuth(() => send(refreshPath, { method: "POST" }))
       : send(refreshPath, { method: "POST" }));

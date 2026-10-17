@@ -2,13 +2,11 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://iic-website-m47q.onrender.com/api/v1/:path*",
-      "destination": "https://iic-website-474y.onrender.com/api/v1/:path*"
+      "destination": "https://iic-website-m47q.onrender.com/api/v1/:path*"
     },
     {
       "source": "/tickets/:path*",
-      "destination": "https://iic-website-m47q.onrender.com/tickets/:path*",
-      "destination": "https://iic-website-474y.onrender.com/tickets/:path*"
+      "destination": "https://iic-website-m47q.onrender.com/tickets/:path*"
     },
     {
       "source": "/(.*)",
